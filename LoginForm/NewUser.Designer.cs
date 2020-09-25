@@ -1,4 +1,4 @@
-﻿namespace LoginForm
+﻿namespace LoginApplication
 {
     partial class NewUser
     {
@@ -132,7 +132,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Goldenrod;
+            this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(784, 411);
             this.Controls.Add(this.label_NewUserTitle);
             this.Controls.Add(this.text_NewEmail);

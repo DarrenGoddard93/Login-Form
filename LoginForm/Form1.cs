@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoginApplication;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,12 +9,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DevOne.Security.Cryptography.BCrypt;
+
 
 namespace LoginForm
 {
     public partial class Form1 : Form
     {
         NewUser newUser = new NewUser();
+
+        private MyDBEntities DBEntities = new MyDBEntities();
 
         public Form1()
         {
@@ -22,34 +27,30 @@ namespace LoginForm
 
         private void click_Login(object sender, EventArgs e)
         {
+            var login = Log(text_username.Text, text_password.Text);
 
-            SqlConnection connection = new SqlConnection();
-            connection.ConnectionString = "Data Source = DESKTOP-EF0N0LL\\SQLEXPRESS;Initial Catalog=My_Database;Integrated Security=True";
-
-            SqlCommand CheckDB = new SqlCommand("Select * from tbl_Login where Username = @username and Password = @password", connection);
-
-            CheckDB.Parameters.AddWithValue("@username", text_username.Text);
-            CheckDB.Parameters.AddWithValue("@password", text_password.Text);
-
-            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(CheckDB);
-            DataSet dataSet = new DataSet();
-            sqlDataAdapter.Fill(dataSet);
-
-            connection.Open();
-
-            int count = dataSet.Tables[0].Rows.Count;
-
-            connection.Close();
-
-            if (count == 1)
+            if(login == null)
             {
-                MessageBox.Show("Login Successful");
+                MessageBox.Show("Failed");
             }
             else
             {
-                MessageBox.Show("Login Not Successful. Try Again");
+                MessageBox.Show("Successful");
             }
+        }
 
+        private tbl_Login Log(string username, string passw)
+        {
+            var login = DBEntities.tbl_Login.SingleOrDefault(a => a.Username.Equals(username));
+
+            if(login != null)
+            {
+                if (BCrypt.Net.BCrypt.Verify(passw, login.Password))
+                {
+                    return login;
+                }
+            }
+            return null;
         }
 
         private void toggle_ShowPassword(object sender, EventArgs e)

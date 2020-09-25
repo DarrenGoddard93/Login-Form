@@ -8,53 +8,63 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Security.Cryptography;
+using LoginForm;
 
-namespace LoginForm
+namespace LoginApplication
 {
     public partial class NewUser : Form
-    {
+    {  
         public NewUser()
         {
             InitializeComponent();
         }
 
+       
         private void click_AddUser(object sender, EventArgs e)
         {
+            string userPassword = text_NewPassword.Text;
+     
             if (ValidateNewUserEntry())
             {
                 MessageBox.Show("Please enter detials in ALL fields");
             }
             else
             {
-                SqlConnection connection = new SqlConnection();
-                connection.ConnectionString = "Data Source = DESKTOP-EF0N0LL\\SQLEXPRESS;Initial Catalog=My_Database;Integrated Security=True";
-
-                connection.Open();
-                SqlCommand AddSQLUser = new SqlCommand("INSERT INTO tbl_Login (Username, Password, Name, Email) values(@username, @password, @name, @email)", connection);
-                AddSQLUser.Parameters.AddWithValue("@username", text_NewUser.Text);
-                AddSQLUser.Parameters.AddWithValue("@password", text_NewPassword.Text);
-                AddSQLUser.Parameters.AddWithValue("@name", text_NewName.Text);
-                AddSQLUser.Parameters.AddWithValue("@email", text_NewEmail.Text);
-
-                AddSQLUser.ExecuteNonQuery();
-                connection.Close();
+                MyDBEntities mde = new MyDBEntities();
+                tbl_Login account = new tbl_Login()
+                {
+                    Username = text_NewUser.Text,
+                    Password = BCrypt.Net.BCrypt.HashPassword(userPassword),
+                    Name = text_NewName.Text,
+                    Email = text_NewEmail.Text
+                };
+                mde.tbl_Login.Add(account);
+                mde.SaveChanges();
+                MessageBox.Show("Successful");
+              
                 NewUser.ActiveForm.Close();
+                
             }
+
         }
 
-            public bool ValidateNewUserEntry()
+        public bool ValidateNewUserEntry()
+        {
+            if (text_NewUser.Text == "" || text_NewPassword.Text == "" || text_NewName.Text == "")
             {
-                if (text_NewUser.Text == "" || text_NewPassword.Text == "" || text_NewName.Text == "" || text_NewEmail.Text == "")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
-        
+        }
+
+
     }
+
+
 }
+
